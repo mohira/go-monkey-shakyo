@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"go-monkey-shakyo/monkey/ast"
 	"go-monkey-shakyo/monkey/lexer"
 	"go-monkey-shakyo/monkey/token"
@@ -13,12 +14,17 @@ import (
 type Parser struct {
 	l *lexer.Lexer // パーサーは字句解析器を(のポインタ)もつ
 
+	errors []string
+
 	curToken  token.Token // 現在のトークンを指し示す(※文字じゃないよ！)
 	peekToken token.Token // 次のトークンを指し示す(※文字じゃないよ！)
 }
 
 func New(l *lexer.Lexer) *Parser {
-	p := &Parser{l: l}
+	p := &Parser{
+		l:      l,
+		errors: []string{},
+	}
 
 	// 2つトークンを読み込む。
 	// curToken と peekToken の両方がセットされる
@@ -26,6 +32,15 @@ func New(l *lexer.Lexer) *Parser {
 	p.nextToken()
 
 	return p
+}
+
+func (p *Parser) Errors() []string {
+	return p.errors
+}
+
+func (p *Parser) peekError(t token.TokenType) {
+	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.peekToken.Type)
+	p.errors = append(p.errors, msg)
 }
 
 func (p *Parser) nextToken() {
@@ -102,6 +117,8 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 		p.nextToken()
 		return true
 	} else {
+		// トークンが期待されるものでなかったら、デバッグ情報をもたせる
+		p.peekError(t)
 		return false
 	}
 }
