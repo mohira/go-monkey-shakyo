@@ -64,8 +64,11 @@ func (l *Lexer) NextToken() token.Token {
 
 	default:
 		// l.chが認識された文字でないときに「識別子」かどうかを点検する
+
 		if isLetter(l.ch) {
 			tok.Literal = l.readIdentifier()
+			tok.Type = token.LookupIdent(tok.Literal)
+
 			return tok
 		} else {
 			tok = newToken(token.ILLEGAL, l.ch)
