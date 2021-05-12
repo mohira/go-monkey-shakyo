@@ -1,6 +1,8 @@
 package lexer
 
-import "go-monkey-shakyo/monkey/token"
+import (
+	"go-monkey-shakyo/monkey/token"
+)
 
 type Lexer struct {
 	input        string
@@ -59,12 +61,41 @@ func (l *Lexer) NextToken() token.Token {
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
+
+	default:
+		// l.chが認識された文字でないときに「識別子」かどうかを点検する
+		if isLetter(l.ch) {
+			tok.Literal = l.readIdentifier()
+			return tok
+		} else {
+			tok = newToken(token.ILLEGAL, l.ch)
+		}
 	}
 
 	// トークンを返す前に次の文字に進める
 	l.readChar()
 
 	return tok
+}
+
+func (l *Lexer) readIdentifier() string {
+	position := l.position
+
+	// 英字を区切りまで読み進める
+	for isLetter(l.ch) {
+		l.readChar()
+	}
+
+	return l.input[position:l.position]
+}
+
+// 英字かどうかの判定をする
+// 重要: '_' も英字として扱う ⇔ 識別子とキーワードに '_' が含まれることを許容する！
+// この関数によって、何が許されるかを決められるので重要(例えば、 ? を許可することもできるわけで)
+func isLetter(ch byte) bool {
+	isAlphabet := ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z')
+
+	return ch == '_' || isAlphabet
 }
 
 func newToken(tokenType token.TokenType, ch byte) token.Token {
