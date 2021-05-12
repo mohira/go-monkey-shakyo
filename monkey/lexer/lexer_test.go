@@ -118,6 +118,9 @@ if (5 < 10) {
 		{token.FALSE, "false"},
 		{token.SEMICOLON, ";"},
 
+		// 16行目 }
+		{token.RBRACE, "}"},
+
 		// 17行目 10 == 10;
 		{token.INT, "10"},
 		{token.EQ, "=="},
