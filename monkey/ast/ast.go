@@ -1,5 +1,7 @@
 package ast
 
+import "go-monkey-shakyo/monkey/token"
+
 type Node interface {
 	// そのノードが関連づけられているトークンのリテラル値を返す
 	// デバッグのみに用いる
@@ -26,4 +28,30 @@ func (p *Program) TokenLiteral() string {
 	} else {
 		return ""
 	}
+}
+
+// let <identifier> = <expression>
+type LetStatement struct {
+	Token token.Token // token.LET トークン
+	Name  *Identifier // 束縛した識別子を保持するため
+	Value Expression  // 値を生成する式を保持するため
+}
+
+// LetStatement は Statement インタフェース を実装している
+// (同時に Node インタフェース を実装している)
+func (ls *LetStatement) statementNode() {}
+func (ls *LetStatement) TokenLiteral() string {
+	return ls.Token.Literal
+}
+
+type Identifier struct {
+	Token token.Token // token.IDENT トークン
+	Value string
+}
+
+// Identifier は Expression インタフェース を実装している
+// (同時に Node インタフェース を実装している)
+func (i *Identifier) expressionNode() {}
+func (i *Identifier) TokenLiteral() string {
+	return i.Token.Literal
 }
