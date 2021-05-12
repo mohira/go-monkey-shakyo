@@ -39,6 +39,11 @@ const (
 	// キーワード: 識別子のようにみえて識別子ではなく、実際の言語の一部である単語
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
+	TRUE     = "TRUE"
+	FALSE    = "FALSE"
+	IF       = "IF"
+	ELSE     = "ELSE"
+	RETURN   = "RETURN"
 )
 
 var keywords = map[string]TokenType{
