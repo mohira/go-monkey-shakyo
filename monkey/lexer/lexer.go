@@ -100,6 +100,18 @@ func (l *Lexer) NextToken() token.Token {
 	return tok
 }
 
+// 先読み用のヘルパー関数
+// 覗き見(peek)するだけで、字句解析の文字位置は進めない
+// MEMO: 言語におけるパースの難易度の違いは、ソースコードを解釈する際に、
+//       どの程度先まで読む（もしくは戻って読む！）必要があるかによるところが大きい。
+func (l *Lexer) peekChar() byte {
+	if l.readPosition >= len(l.input) {
+		return 0
+	} else {
+		return l.input[l.readPosition]
+	}
+}
+
 func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
 }
