@@ -44,7 +44,7 @@ let result = add(five, ten);
 		{token.COMMA, ","},
 		{token.IDENT, "y"},
 		{token.RPAREN, ")"},
-		{token.LBRACE, "}"},
+		{token.LBRACE, "{"},
 
 		// 5行目 x + y;
 		{token.IDENT, "x"},
