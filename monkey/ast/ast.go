@@ -51,6 +51,23 @@ type LetStatement struct {
 	Value Expression  // 値を生成する式を保持するため
 }
 
+func (ls *LetStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(ls.TokenLiteral() + " ")
+	out.WriteString(ls.Name.String())
+	out.WriteString(" = ")
+
+	// TODO: 後で完全に式を構築できるようになったときに取り外す、仮のものだ。
+	if ls.Value != nil {
+		out.WriteString(ls.Value.String())
+	}
+
+	out.WriteString(";")
+
+	return out.String()
+}
+
 // LetStatement は Statement インタフェース を実装している
 // (同時に Node インタフェース を実装している)
 func (ls *LetStatement) statementNode() {}
@@ -70,9 +87,27 @@ func (i *Identifier) TokenLiteral() string {
 	return i.Token.Literal
 }
 
+func (i *Identifier) String() string {
+	return i.Value
+}
+
 type ReturnStatement struct {
 	Token       token.Token // 'return' トークン
 	ReturnValue Expression
+}
+
+func (rs *ReturnStatement) String() string {
+	var out bytes.Buffer
+	out.WriteString(rs.TokenLiteral() + " ")
+
+	// TODO: 後で完全に式を構築できるようになったときに取り外す、仮のものだ。
+	if rs.ReturnValue != nil {
+		out.WriteString(rs.ReturnValue.String())
+	}
+
+	out.WriteString(";")
+
+	return out.String()
 }
 
 func (rs *ReturnStatement) statementNode() {}
@@ -83,6 +118,15 @@ func (rs *ReturnStatement) TokenLiteral() string {
 type ExpressionStatement struct {
 	Token      token.Token
 	Expression Expression
+}
+
+func (es ExpressionStatement) String() string {
+	// TODO: 後で完全に式を構築できるようになったときに取り外す、仮のものだ。
+	if es.Expression != nil {
+		return es.Expression.String()
+	}
+
+	return ""
 }
 
 func (es ExpressionStatement) statementNode() {}
