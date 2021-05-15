@@ -67,6 +67,39 @@ func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 	return true
 }
 
+func TestReturnStatements(t *testing.T) {
+	input := `
+return 5;
+return 10;
+return 993322;
+`
+	l := lexer.New(input)
+	p := New(l)
+
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	// input には 3つのreturn文 が含まれていることを正しく解析できているかを調べている
+	if len(program.Statements) != 3 {
+		t.Fatalf("program.Statements does not contain 3 statements. got=%d", len(program.Statements))
+	}
+
+	for _, stmt := range program.Statements {
+		returnStmt, ok := stmt.(*ast.ReturnStatement)
+		// 型アサーション(https://go-tour-jp.appspot.com/methods/15)
+		if !ok {
+			t.Errorf("stmt not *ast.returnStatement. got=%T", stmt)
+			continue
+		}
+
+		if returnStmt.TokenLiteral() != "return" {
+			t.Errorf("returnStatement.TokenLiteral not 'return', got %q", returnStmt.TokenLiteral())
+		}
+
+	}
+
+}
+
 // 構文解析器のエラーが調べてエラーがあれば即座にテストを止めてデバッグ情報吐き出す
 func checkParserErrors(t *testing.T, p *Parser) {
 	errors := p.Errors()
