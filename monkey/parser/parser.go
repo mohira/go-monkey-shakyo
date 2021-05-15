@@ -18,7 +18,22 @@ type Parser struct {
 
 	curToken  token.Token // 現在のトークンを指し示す(※文字じゃないよ！)
 	peekToken token.Token // 次のトークンを指し示す(※文字じゃないよ！)
+
+	// トークンタイプごとに適切な構文解析関数を持てるようにする
+	prefixParseFns map[token.TokenType]prefixParseFn
+	infixParseFns  map[token.TokenType]infixParseFn
 }
+
+type (
+	// 前置構文を解析するための関数
+	// 関連付けられたトークンタイプが前置で出現した場合に呼ばれる
+	prefixParseFn func() ast.Expression
+
+	// 中置構文を解析するための関数
+	// 引数は、中置演算子の「左側」
+	// 関連付けられたトークンタイプが中置で出現した場合に呼ばれる
+	infixParseFn func(ast.Expression) ast.Expression
+)
 
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
