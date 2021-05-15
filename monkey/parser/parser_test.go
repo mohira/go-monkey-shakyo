@@ -152,3 +152,42 @@ func TestIdentifierExpression(t *testing.T) {
 		t.Errorf("ident.TokenLiteral not %s. got=%s", "foobar", ident.TokenLiteral())
 	}
 }
+
+// 整数リテラルの構文解析
+// 識別子のテストケースと同様に、
+// 	シンプルな入力を使い、
+//	構文解析器に送り込み、
+//	構文解析器がエラーに遭遇していないことを確認し、
+//	正しい数の文が*ast.Program.Statementsに生成されたことを確認する。
+//	それから、最初の文が*ast.ExpressionStatementであるというアサーションを設ける。
+//	最後に、*ast.IntegerLiteralが問題なく構築されていることを確認する。
+func TestIntegerLiteralExpression(t *testing.T) {
+	input := "5;"
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+
+	literal, ok := stmt.Expression.(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("exp not *ast.IntegerLiteral. got=%T", stmt.Expression)
+	}
+
+	if literal.Value != 5 {
+		t.Errorf("literal.Value not %d. got=%d", 5, literal.Value)
+	}
+
+	if literal.TokenLiteral() != "5" {
+		t.Errorf("literal.TokenLiteral not %s. got=%s", "5", literal.TokenLiteral())
+	}
+
+}
