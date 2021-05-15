@@ -89,7 +89,9 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
-		return nil
+		// Monkeyにおける純粋な文は2種類で、let文とreturn文しか存在しない。
+		// もしそれ以外のものが出現したら式文の構文解析を試みることにしよう
+		return p.parseExpressionStatement()
 	}
 }
 
@@ -165,4 +167,22 @@ func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
 // 中置構文解析関数をマップに追加するためのヘルパーメソッド
 func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	p.infixParseFns[tokenType] = fn
+}
+
+func (p *Parser) parseExpressionStatement() ast.Statement {
+	stmt := &ast.ExpressionStatement{Token: p.curToken}
+
+	stmt.Expression = p.parseExpression(LOWERST)
+
+	// p.58
+	// 省略可能なセミコロンをチェックする。
+	// もしセミコロンがなかったとしても問題はない。
+	// 構文解析器にエラーを追加するようなことはしない。
+	// なぜかというと、式文のセミコロンを省略できるようにしたいからだ
+	// （こうしておけば後ほど5 + 5のようなものをREPLに入力しやすくなる）。
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return stmt
 }
