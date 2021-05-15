@@ -7,6 +7,19 @@ import (
 	"go-monkey-shakyo/monkey/token"
 )
 
+// Monkey言語における優先順位の定義
+const (
+	// iotaは0の値を取り、続く定数には 1 から 7 の値が割り振られる
+	_ int = iota
+	LOWEST
+	EQUALS      // ==
+	LESSGREATER // > または <
+	SUM         // +
+	PRODUCT     // *
+	PREFIX      // -X または !X
+	CALL        // myFunction(X)
+)
+
 // peekTokenが必要な理由
 // p.35 例として、1つの行に 5; だけがある場合を考えてみよう。
 //      ここで、curTokenはtoken.INTとなる。
@@ -172,7 +185,7 @@ func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 func (p *Parser) parseExpressionStatement() ast.Statement {
 	stmt := &ast.ExpressionStatement{Token: p.curToken}
 
-	stmt.Expression = p.parseExpression(LOWERST)
+	stmt.Expression = p.parseExpression(LOWEST)
 
 	// p.58
 	// 省略可能なセミコロンをチェックする。
