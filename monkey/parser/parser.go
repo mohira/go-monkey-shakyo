@@ -156,3 +156,13 @@ func (p *Parser) parseReturnStatement() ast.Statement {
 
 	return stmt
 }
+
+// 前置構文解析関数をマップに追加するためのヘルパーメソッド
+func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
+	p.prefixParseFns[tokenType] = fn
+}
+
+// 中置構文解析関数をマップに追加するためのヘルパーメソッド
+func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
+	p.infixParseFns[tokenType] = fn
+}
