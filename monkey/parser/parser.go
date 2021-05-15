@@ -5,6 +5,7 @@ import (
 	"go-monkey-shakyo/monkey/ast"
 	"go-monkey-shakyo/monkey/lexer"
 	"go-monkey-shakyo/monkey/token"
+	"strconv"
 )
 
 // Monkey言語における優先順位の定義
@@ -217,4 +218,20 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 
 func (p *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+}
+
+func (p *Parser) parseIntegerLiteral() ast.Expression {
+	lit := &ast.IntegerLiteral{Token: p.curToken}
+
+	// 整数リテラルの文字列をint64に変換する
+	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
+	if err != nil {
+		msg := fmt.Sprintf("could not parse %q as integer", p.curToken.Literal)
+		p.errors = append(p.errors, msg)
+		return nil
+	}
+
+	lit.Value = value
+
+	return lit
 }
