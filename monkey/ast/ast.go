@@ -6,6 +6,7 @@ type Node interface {
 	// そのノードが関連づけられているトークンのリテラル値を返す
 	// デバッグのみに用いる
 	TokenLiteral() string
+	String() string
 }
 
 type Statement interface {
