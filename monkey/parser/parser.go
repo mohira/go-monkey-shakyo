@@ -199,3 +199,15 @@ func (p *Parser) parseExpressionStatement() ast.Statement {
 
 	return stmt
 }
+
+// p.curToken.Typeの前置に関連付けられた構文解析関数を調べて、存在するなら呼び出す
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	prefix := p.prefixParseFns[p.curToken.Type]
+	if prefix == nil {
+		return nil
+	}
+
+	leftExp := prefix()
+
+	return leftExp
+}
