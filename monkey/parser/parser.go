@@ -245,6 +245,22 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 
 	leftExp := prefix()
 
+	// `precedence < p.peekPrecedence()` は"結合力"のチェックをしている
+	//  つまり、2つの演算子(op1, op2 とする)の優先度を比べて、i)かii)の判断をする感じ
+	// 		 i) op1を採用して、  Left-op1-Right               をExpressionとする
+	// 		ii) op1は無視して、           Right-op2-NextRight をExpressionとする
+	//
+	//   i) 左結合力が強い → 左に吸い込んで1つの式にする
+	//          Left op1 Right op2 NextRight
+	//	   式文: 1     *    2    +      3
+	//			    ←←←←←        →
+	//	   結果: (1 * 2)         +      3
+	//
+	//  ii) 右結合力が強い → 右に吸い込んで1つの式にする
+	//          Left op1 Right op2 NextRight
+	//	   式文: 1     +    2    *      3
+	//			      ←       →→→→→
+	//	   結果: 1     +           (2 * 3)
 	for !p.peekTokenIs(token.SEMICOLON) && precedence < p.peekPrecedence() {
 		infix := p.infixParseFns[p.peekToken.Type]
 		if infix == nil {

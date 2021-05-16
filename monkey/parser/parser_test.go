@@ -360,6 +360,16 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"3 + 4 * 5 == 3 * 1 + 4 * 5",
 			"((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
 		},
+		{
+			// p.76以降の解説用のテストケース(単体で実行してデバッガで追うと動きを理解しやすい)
+			"1 + 2 + 3;",
+			"((1 + 2) + 3)",
+		},
+		{
+			// p.82の左結合力と右結合力の例
+			"-1 + 2",
+			"((-1) + 2)",
+		},
 	}
 
 	for _, tt := range tests {
@@ -373,5 +383,4 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			t.Errorf("expected=%q, got=%q", tt.expected, actual)
 		}
 	}
-
 }
