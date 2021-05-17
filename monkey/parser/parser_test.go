@@ -302,117 +302,141 @@ func TestParsingInfixExpressions(t *testing.T) {
 
 func TestOperatorPrecedenceParsing(t *testing.T) {
 	tests := []struct {
+		name     string
 		input    string
 		expected string
 	}{
 		{
+			"",
 			"-a * b",
 			"((-a) * b)",
 		},
 		{
+			"",
 			"!-a",
 			"(!(-a))",
 		},
 		{
+			"",
 			"a + b +c",
 			"((a + b) + c)",
 		},
 		{
+			"",
 			"a + b - c",
 			"((a + b) - c)",
 		},
 		{
+			"",
 			"a * b * c",
 			"((a * b) * c)",
 		},
 		{
+			"",
 			"a * b / c",
 			"((a * b) / c)",
 		},
 		{
+			"",
 			"a + b / c",
 			"(a + (b / c))",
 		},
 		{
+			"",
 			"a + b * c + d / e - f",
 			"(((a + (b * c)) + (d / e)) - f)",
 		},
 		{
+			"",
 			"3 + 4; -5 * 5",
 			"(3 + 4)((-5) * 5)",
 		},
 		{
+			"",
 			"5 > 4 == 3 < 4",
 			"((5 > 4) == (3 < 4))",
 		},
 		{
+			"",
 			"5 < 4 != 3 > 4",
 			"((5 < 4) != (3 > 4))",
 		},
 		{
+			"",
 			"3 + 4 * 5 == 3 * 1 + 4 * 5",
 			"((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
 		},
 		{
-			// p.76以降の解説用のテストケース(単体で実行してデバッガで追うと動きを理解しやすい)
+			"p.76: 解説用のテストケース(単体で実行してデバッガで追うと動きを理解しやすい)",
 			"1 + 2 + 3;",
 			"((1 + 2) + 3)",
 		},
 		{
-			// p.82の左結合力と右結合力の例
+			"p.82: 左結合力と右結合力の例",
 			"-1 + 2",
 			"((-1) + 2)",
 		},
 		{
+			"",
 			"true",
 			"true",
 		},
 		{
+			"",
 			"false",
 			"false",
 		},
 		{
+			"",
 			"3 > 5 == false",
 			"((3 > 5) == false)",
 		},
 		{
+			"",
 			"3 < 5 == true",
 			"((3 < 5) == true)",
 		},
 
-		// p.92
 		{
+			"p.92: グループ化された式",
 			"1 + (2 + 3) + 4",
 			"((1 + (2 + 3)) + 4)",
 		},
 		{
+			"p.92: グループ化された式",
 			"(5 + 5) * 2",
 			"((5 + 5) * 2)",
 		},
 		{
+			"p.92: グループ化された式",
 			"2 / (5 + 5)",
 			"(2 / (5 + 5))",
 		},
 		{
+			"p.92: グループ化された式",
 			"-(5 + 5)",
 			"(-(5 + 5))",
 		},
 		{
+			"p.92: グループ化された式",
 			"!(true == true)",
 			"(!(true == true))",
 		},
 	}
 
 	for _, tt := range tests {
-		l := lexer.New(tt.input)
-		p := New(l)
-		program := p.ParseProgram()
-		checkParserErrors(t, p)
+		t.Run(tt.name, func(t *testing.T) {
 
-		actual := program.String()
-		if actual != tt.expected {
-			t.Errorf("expected=%q, got=%q", tt.expected, actual)
-		}
+			l := lexer.New(tt.input)
+			p := New(l)
+			program := p.ParseProgram()
+			checkParserErrors(t, p)
+
+			actual := program.String()
+			if actual != tt.expected {
+				t.Errorf("expected=%q, got=%q", tt.expected, actual)
+			}
+		})
 	}
 }
 
