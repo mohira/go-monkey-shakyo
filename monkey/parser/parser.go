@@ -90,6 +90,9 @@ func New(l *lexer.Lexer) *Parser {
 	// p.92 グループ化された式のための解析関数
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
 
+	// p.96 if式の解析
+	p.registerPrefix(token.IF, p.parseIfExpression)
+
 	// 中置演算子の解析用関数の登録
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -375,4 +378,71 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	}
 
 	return exp
+}
+
+func (p *Parser) parseIfExpression() ast.Expression {
+	// if ( <condition> ) { <consequence> }
+	// if  →  (  →  式  →  )  →  {  →  式  →  }
+	expression := &ast.IfExpression{Token: p.curToken} // if式のASTノード作成
+
+	// ex: if ( x < y ) { x }
+	//      | |
+	//    cur peek
+	if !p.expectPeek(token.LPAREN) {
+		return nil
+	}
+
+	p.nextToken()
+	// ex: if ( x < y ) { x }
+	//        | |
+	//      cur peek
+	expression.Condition = p.parseExpression(LOWEST) // "x", "<", "y"
+
+	// ex: if ( x < y ) { x }
+	//              | |
+	//            cur peek
+	if !p.expectPeek(token.RPAREN) {
+		return nil
+	}
+
+	// ex: if ( x < y ) { x }
+	//                | |
+	//              cur peek
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	// ex: if ( x < y ) { x }
+	//                  | |
+	//                cur peek
+	expression.Consequence = p.parseBlockStatement()
+
+	return expression
+}
+
+func (p *Parser) parseBlockStatement() *ast.BlockStatement {
+	block := &ast.BlockStatement{Token: p.curToken}
+	block.Statements = []ast.Statement{}
+
+	// ex: if ( x < y ) { x }
+	//                  | |
+	//                cur peek
+	p.nextToken()
+
+	// ex: if ( x < y ) { x }
+	//                    | |
+	//                  cur peek
+	for !p.curTokenIs(token.RBRACE) && !p.curTokenIs(token.EOF) {
+		stmt := p.parseStatement()
+		if stmt != nil {
+			block.Statements = append(block.Statements, stmt)
+		}
+
+		p.nextToken()
+	}
+
+	// ex: if ( x < y ) { x }
+	//                      | |
+	//                    cur peek
+	return block
 }
