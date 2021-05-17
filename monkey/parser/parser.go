@@ -417,6 +417,28 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	//                cur peek
 	expression.Consequence = p.parseBlockStatement()
 
+	// elseの省略は許されている
+	// ex: if ( x < y ) { x } else { y }
+	//                      | |
+	//                    cur peek
+	if p.peekTokenIs(token.ELSE) {
+		p.nextToken()
+
+		// ex: if ( x < y ) { x } else { y }
+		//                          |  |
+		//                        cur  peek
+		if !p.expectPeek(token.LBRACE) {
+			return nil
+		}
+
+		// elseブロックのあとは、構造が同じなので、p.parseBlockStatement()使い回しでOK
+		// きっかけとなるトークンが違うだけ
+		// if
+		//   ( <condition> ) { <consequence> }  ← きっかけは (
+		//              else { <alternative> }  ← きっかけは else
+		expression.Alternative = p.parseBlockStatement()
+	}
+
 	return expression
 }
 
