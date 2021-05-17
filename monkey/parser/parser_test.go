@@ -697,30 +697,34 @@ func TestFunctionLiteralParsing(t *testing.T) {
 }
 
 func TestFunctionParameterParsing(t *testing.T) {
+
 	tests := []struct {
+		name           string
 		input          string
 		expectedParams []string
 	}{
-		{input: "fn() {};", expectedParams: []string{}},
-		{input: "fn(x) {};", expectedParams: []string{"x"}},
-		{input: "fn(x, y, z) {};", expectedParams: []string{"x", "y", "z"}},
+		{name: "パラメータなし", input: "fn() {};", expectedParams: []string{}},
+		{name: "1つのパラメータ", input: "fn(x) {};", expectedParams: []string{"x"}},
+		{name: "複数のパラメータ", input: "fn(x, y, z) {};", expectedParams: []string{"x", "y", "z"}},
 	}
 
 	for _, tt := range tests {
-		l := lexer.New(tt.input)
-		p := New(l)
-		program := p.ParseProgram()
-		checkParserErrors(t, p)
+		t.Run(tt.name, func(t *testing.T) {
+			l := lexer.New(tt.input)
+			p := New(l)
+			program := p.ParseProgram()
+			checkParserErrors(t, p)
 
-		stmt := program.Statements[0].(*ast.ExpressionStatement)
-		function := stmt.Expression.(*ast.FunctionLiteral)
+			stmt := program.Statements[0].(*ast.ExpressionStatement)
+			function := stmt.Expression.(*ast.FunctionLiteral)
 
-		if len(function.Parameters) != len(tt.expectedParams) {
-			t.Errorf("lenght parameters wrong. want %d, got=%d\n", len(function.Parameters), len(tt.expectedParams))
-		}
+			if len(function.Parameters) != len(tt.expectedParams) {
+				t.Errorf("lenght parameters wrong. want %d, got=%d\n", len(function.Parameters), len(tt.expectedParams))
+			}
 
-		for i, ident := range tt.expectedParams {
-			testLiteralExpression(t, function.Parameters[i], ident)
-		}
+			for i, ident := range tt.expectedParams {
+				testLiteralExpression(t, function.Parameters[i], ident)
+			}
+		})
 	}
 }
