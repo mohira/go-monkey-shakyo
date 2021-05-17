@@ -93,6 +93,9 @@ func New(l *lexer.Lexer) *Parser {
 	// p.96 if式の解析
 	p.registerPrefix(token.IF, p.parseIfExpression)
 
+	// p.101 関数リテラルの解析
+	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
+
 	// 中置演算子の解析用関数の登録
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -467,4 +470,86 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	//                      | |
 	//                    cur peek
 	return block
+}
+
+func (p *Parser) parseFunctionLiteral() ast.Expression {
+	lit := &ast.FunctionLiteral{Token: p.curToken}
+
+	// ex: fn ( x , y ) { x + y; }
+	//      | |
+	//    cur peek
+	if !p.expectPeek(token.LPAREN) {
+		return nil
+	}
+
+	lit.Parameters = p.parseFunctionParameters()
+
+	// ex: fn ( x , y ) { x + y; }
+	//                | |
+	//              cur peek
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	// ex: fn ( x , y ) { x + y; }
+	//                  | |
+	//                cur peek
+	lit.Body = p.parseBlockStatement()
+
+	return lit
+
+}
+
+func (p *Parser) parseFunctionParameters() []*ast.Identifier {
+	identifiers := []*ast.Identifier{}
+
+	// ex: fn ( x , y ) { x + y; }
+	//        | |
+	//      cur peek
+	if p.peekTokenIs(token.RPAREN) {
+		// パラメータがない場合もあるからね
+		p.nextToken()
+		return identifiers
+	}
+
+	// ex: fn ( x , y ) { x + y; }
+	//        | |
+	//      cur peek
+	p.nextToken()
+
+	// ex: fn ( x , y ) { x + y; }
+	//          | |
+	//        cur peek
+	ident := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	identifiers = append(identifiers, ident)
+
+	for p.peekTokenIs(token.COMMA) {
+		// ex: fn ( x , y ) { x + y; }
+		//          | |
+		//        cur peek
+		p.nextToken()
+
+		// ex: fn ( x , y ) { x + y; }
+		//            | |
+		//          cur peek
+		p.nextToken()
+
+		// ex: fn ( x , y ) { x + y; }
+		//              | |
+		//          cur peek
+		ident := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+		identifiers = append(identifiers, ident)
+	}
+
+	// ex: fn ( x , y ) { x + y; }
+	//              | |
+	//            cur peek
+	if !p.expectPeek(token.RPAREN) {
+		return nil
+	}
+
+	// ex: fn ( x , y ) { x + y; }
+	//                | |
+	//              cur peek
+	return identifiers
 }
