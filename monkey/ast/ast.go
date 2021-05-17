@@ -213,3 +213,34 @@ func (b *Boolean) TokenLiteral() string {
 func (b *Boolean) String() string {
 	return b.Token.Literal
 }
+
+// if (<condition>) <consequence> else <alternative
+// elseは省略可能
+type IfExpression struct {
+	Token       token.Token
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+func (ie *IfExpression) expressionNode() {}
+
+func (ie *IfExpression) String() string {
+	return ie.Token.Literal
+}
+
+func (ie *IfExpression) TokenLiteral() string {
+	var out bytes.Buffer
+
+	out.WriteString("if")
+	out.WriteString(ie.Condition.String())
+	out.WriteString(" ")
+	out.WriteString(ie.Consequence.String())
+
+	if ie.Alternative != nil {
+		out.WriteString("else ")
+		out.WriteString(ie.Alternative.String())
+	}
+
+	return out.String()
+}
