@@ -233,12 +233,22 @@ func (p *Parser) parseReturnStatement() ast.Statement {
 	stmt := &ast.ReturnStatement{Token: p.curToken}
 
 	// RETURN の次のトークンを読む
+	// ex: return a + b ;
+	//            | |
+	//          cur peek
 	p.nextToken()
 
-	// TODO: セミコロンに遭遇するまで式を読み飛ばしてしまっている
+	stmt.ReturnValue = p.parseExpression(LOWEST)
+	// ex: return a + b ;
+	//                | |
+	//             cur peek
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
+
+	// ex: return a + b ;
+	//                  | |
+	//                cur peek
 
 	return stmt
 }
