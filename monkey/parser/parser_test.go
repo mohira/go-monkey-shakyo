@@ -69,36 +69,41 @@ func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 }
 
 func TestReturnStatements(t *testing.T) {
-	input := `
-return 5;
-return 10;
-return 993322;
-`
-	l := lexer.New(input)
-	p := New(l)
-
-	program := p.ParseProgram()
-	checkParserErrors(t, p)
-
-	// input には 3つのreturn文 が含まれていることを正しく解析できているかを調べている
-	if len(program.Statements) != 3 {
-		t.Fatalf("program.Statements does not contain 3 statements. got=%d", len(program.Statements))
+	tests := []struct {
+		name          string
+		input         string
+		expectedValue interface{}
+	}{
+		{"return INT;", "return 5;", 5},
+		{"return BOOL;", "return true;", true},
+		{"return IDENT;", "return foobar;", "foobar"},
 	}
 
-	for _, stmt := range program.Statements {
-		returnStmt, ok := stmt.(*ast.ReturnStatement)
-		// 型アサーション(https://go-tour-jp.appspot.com/methods/15)
-		if !ok {
-			t.Errorf("stmt not *ast.returnStatement. got=%T", stmt)
-			continue
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := lexer.New(tt.input)
+			p := New(l)
+			program := p.ParseProgram()
+			checkParserErrors(t, p)
 
-		if returnStmt.TokenLiteral() != "return" {
-			t.Errorf("returnStatement.TokenLiteral not 'return', got %q", returnStmt.TokenLiteral())
-		}
+			if len(program.Statements) != 1 {
+				t.Fatalf("program.Statements does not contain 1 statements. got=%d", len(program.Statements))
+			}
 
+			stmt := program.Statements[0]
+			returnStmt, ok := stmt.(*ast.ReturnStatement)
+
+			if !ok {
+				t.Fatalf("stmt not *ast.returnStatemnt. got=%T", stmt)
+			}
+			if returnStmt.TokenLiteral() != "return" {
+				t.Fatalf("returnStmt.TokenLiteral not 'return', got %q", returnStmt.TokenLiteral())
+			}
+			if testLiteralExpression(t, returnStmt.ReturnValue, tt.expectedValue) {
+				return
+			}
+		})
 	}
-
 }
 
 // 構文解析器のエラーが調べてエラーがあれば即座にテストを止めてデバッグ情報吐き出す
