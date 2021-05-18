@@ -168,19 +168,36 @@ func (p *Parser) parseLetStatement() ast.Statement {
 	// という構造なので、 let → Identifier → ASSIGN → Expression → SEMICOLON と期待していく
 	stmt := &ast.LetStatement{Token: p.curToken}
 
-	//
+	// ex: let x = 5;
+	//       | |
+	//     cur peek
 	if !p.expectPeek(token.IDENT) {
 		return nil
 	}
 
 	// p.expectPeek() の次のトークンに進めているので、ここの curToken は 識別子 が入っている
+	// ex: let x = 5;
+	//         | |
+	//       cur peek
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
+	// ex: let x = 5;
+	//         | |
+	//       cur peek
 	if !p.expectPeek(token.ASSIGN) {
 		return nil
 	}
 
-	// TODO: セミコロンに遭遇するまで式を読み飛ばしてしまっている
+	// ex: let x = 5;
+	//           | |
+	//         cur peek
+	p.nextToken()
+
+	// ex: let x = 5 ;
+	//             | |
+	//           cur peek
+	stmt.Value = p.parseExpression(LOWEST)
+
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
