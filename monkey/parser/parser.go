@@ -107,6 +107,9 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.LT, p.parseInfixExpression)
 	p.registerInfix(token.GT, p.parseInfixExpression)
 
+	// p.107
+	p.registerInfix(token.LPAREN, p.parseCallExpression)
+
 	return p
 }
 
@@ -552,4 +555,54 @@ func (p *Parser) parseFunctionParameters() []*ast.Identifier {
 	//                | |
 	//              cur peek
 	return identifiers
+}
+
+func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
+	exp := &ast.CallExpression{Token: p.curToken, Function: function}
+
+	exp.Arguments = p.parseCallArguments()
+
+	return exp
+}
+
+func (p *Parser) parseCallArguments() []ast.Expression {
+	var args []ast.Expression
+
+	// ex: add ( 1 , 2 * 3 , 4 + 5 );
+	//         | |
+	//       cur peek
+	if p.peekTokenIs(token.RPAREN) {
+		// 引数なしのケース
+		// ex: call ( );
+		//          | |
+		//        cur peek
+		p.nextToken()
+		return args
+	}
+
+	// ex: add ( 1 , 2 * 3 , 4 + 5 );
+	//         | |
+	//       cur peek
+	p.nextToken()
+	args = append(args, p.parseExpression(LOWEST))
+
+	for p.peekTokenIs(token.COMMA) {
+		// ex: add ( 1 , 2 * 3 , 4 + 5 );
+		//           | |
+		//         cur peek
+		p.nextToken()
+
+		// ex: add ( 1 , 2 * 3 , 4 + 5 );
+		//             | |
+		//           cur peek
+		p.nextToken()
+
+		args = append(args, p.parseExpression(LOWEST))
+	}
+
+	if !p.expectPeek(token.RPAREN) {
+		return nil
+	}
+
+	return args
 }
