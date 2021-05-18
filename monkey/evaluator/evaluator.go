@@ -5,6 +5,11 @@ import (
 	"go-monkey-shakyo/monkey/object"
 )
 
+var (
+	TRUE  = &object.Boolean{Value: true}
+	FALSE = &object.Boolean{Value: false}
+)
+
 func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 
@@ -18,9 +23,17 @@ func Eval(node ast.Node) object.Object {
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	case *ast.Boolean:
-		return &object.Boolean{Value: node.Value}
+		return nativeBoolToBooleanObject(node.Value)
 	}
 	return nil
+}
+
+func nativeBoolToBooleanObject(input bool) object.Object {
+	if input == true {
+		return TRUE
+	} else {
+		return FALSE
+	}
 }
 
 func evalStatements(statements []ast.Statement) object.Object {
