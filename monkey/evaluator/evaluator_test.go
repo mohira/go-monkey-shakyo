@@ -50,3 +50,38 @@ func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
 
 	return true
 }
+
+// Booleanリテラルだけを含む式文を評価すると、そのBooleanそのものになる
+func TestEvalBooleanExpression(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected bool
+	}{
+		{"true を 評価すると true", "true", true},
+		{"false を 評価すると false", "false", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+
+			testBooleanObject(t, evaluated, tt.expected)
+		})
+	}
+}
+
+func testBooleanObject(t *testing.T, obj object.Object, expected bool) bool {
+	result, ok := obj.(*object.Boolean)
+	if !ok {
+		t.Fatalf("object is not Boolean. got=%T (%+v)", obj, obj)
+		return false
+	}
+
+	if result.Value != expected {
+		t.Fatalf("object has wrong value. got=%t, want=%t", result.Value, expected)
+		return false
+	}
+
+	return true
+}
