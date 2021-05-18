@@ -34,6 +34,9 @@ var precedences = map[token.TokenType]int{
 
 	token.SLASH:    PRODUCT,
 	token.ASTERISK: PRODUCT,
+
+	// 呼び出し式は最も優先順位が高い
+	token.LPAREN: CALL,
 }
 
 // peekTokenが必要な理由

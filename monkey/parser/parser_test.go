@@ -751,7 +751,7 @@ func TestCallExpressionParsing(t *testing.T) {
 		t.Fatalf("stmt.Expression is not ast.CallExpression. got=%T", stmt.Expression)
 	}
 
-	if !testIdentifier(t, exp, "add") {
+	if !testIdentifier(t, exp.Function, "add") {
 		return
 	}
 
@@ -760,6 +760,6 @@ func TestCallExpressionParsing(t *testing.T) {
 	}
 
 	testLiteralExpression(t, exp.Arguments[0], 1)
-	testInfixExpression(t, exp.Arguments[1], "2", "*", "3")
-	testInfixExpression(t, exp.Arguments[2], "4", "+", "5")
+	testInfixExpression(t, exp.Arguments[1], 2, "*", 3)
+	testInfixExpression(t, exp.Arguments[2], 4, "+", 5)
 }
