@@ -422,6 +422,21 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"!(true == true)",
 			"(!(true == true))",
 		},
+		{
+			"呼び出し式の優先順位が最高であることの確認",
+			"a + add(b * c) + d",
+			"((a + add((b * c))) + d)",
+		},
+		{
+			"呼び出し式の優先順位が最高であることの確認",
+			"add(a, b, a, 2 * 3, 4 + 5, add(6, 7 * 8))",
+			"add(a, b, a, (2 * 3), (4 + 5), add(6, (7 * 8)))",
+		},
+		{
+			"呼び出し式の優先順位が最高であることの確認",
+			"add(a + b + c * d / f + g)",
+			"add((((a + b) + ((c * d) / f)) + g))",
+		},
 	}
 
 	for _, tt := range tests {
