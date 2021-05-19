@@ -196,6 +196,19 @@ func TestReturnStatements(t *testing.T) {
 		{"return文に続く文は評価に無関係", "return 10; 9;", 10},
 		{"return <expression> の <expression>もちゃんと評価される", "return 2 * 5; 9;", 10},
 		{"return文の前後の文は評価に無関係", "9; return 2 * 5; 9;;", 10},
+
+		{"ネストしたブロック文を正しく評価できる",
+			`
+if (10 > 1) {
+	if (10 > 1) {
+		return 10;
+	}
+
+	return 1;
+}
+`,
+			10,
+		},
 	}
 
 	for _, tt := range tests {
