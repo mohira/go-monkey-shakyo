@@ -14,13 +14,15 @@ var (
 func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 
-	// 文の場合
 	case *ast.Program:
 		return evalStatements(node.Statements)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
+	case *ast.BlockStatement:
+		return evalStatements(node.Statements)
 
-	// 式の場合
+	case *ast.IfExpression:
+		return evalIfExpression(node)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	case *ast.Boolean:
@@ -36,6 +38,7 @@ func Eval(node ast.Node) object.Object {
 		right := Eval(node.Right)
 
 		return evalInfixExpression(node.Operator, left, right)
+
 	}
 
 	return nil
@@ -132,5 +135,32 @@ func evalIntegerInfixExpression(operator string, left object.Object, right objec
 		return nativeBoolToBooleanObject(leftVal != rightVal)
 	default:
 		return NULL
+	}
+}
+
+func evalIfExpression(ie *ast.IfExpression) object.Object {
+	// if (<condition>) { <consequence> } else { <alternative> }
+	condition := Eval(ie.Condition)
+	if isTruthy(condition) {
+		return Eval(ie.Consequence)
+	} else if ie.Alternative != nil {
+		return Eval(ie.Alternative)
+	} else {
+		// 条件分岐を評価した結果が何かの値にならなかった場合は NULL を返す
+		return NULL
+	}
+}
+
+// nullでもfalseでもなければ、それはtruthy
+func isTruthy(obj object.Object) bool {
+	switch obj {
+	case NULL:
+		return false
+	case TRUE:
+		return true
+	case FALSE:
+		return false
+	default:
+		return true
 	}
 }
