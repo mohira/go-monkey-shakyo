@@ -17,6 +17,8 @@ func TestEvalIntegerExpression(t *testing.T) {
 	}{
 		{"5 を評価したら 5 になる", "5", 5},
 		{"10 を評価したら 10 になる", "10", 10},
+		{"「-」前置演算子", "-5", -5},
+		{"「-」前置演算子", "-10", -10},
 	}
 
 	for _, tt := range tests {
