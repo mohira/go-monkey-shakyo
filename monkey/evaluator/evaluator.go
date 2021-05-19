@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"fmt"
 	"go-monkey-shakyo/monkey/ast"
 	"go-monkey-shakyo/monkey/object"
 )
@@ -109,6 +110,7 @@ func evalIntegerInfixExpression(operator string, left object.Object, right objec
 	leftVal := left.(*object.Integer).Value
 	rightVal := right.(*object.Integer).Value
 
+	fmt.Println(leftVal, operator, rightVal)
 	switch operator {
 	case "+":
 		return &object.Integer{Value: leftVal + rightVal}
@@ -118,6 +120,14 @@ func evalIntegerInfixExpression(operator string, left object.Object, right objec
 		return &object.Integer{Value: leftVal * rightVal}
 	case "/":
 		return &object.Integer{Value: leftVal / rightVal}
+	case "<":
+		return nativeBoolToBooleanObject(leftVal < rightVal)
+	case ">":
+		return nativeBoolToBooleanObject(leftVal > rightVal)
+	case "==":
+		return nativeBoolToBooleanObject(leftVal == rightVal)
+	case "!=":
+		return nativeBoolToBooleanObject(leftVal != rightVal)
 	default:
 		return NULL
 	}
