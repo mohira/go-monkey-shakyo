@@ -64,7 +64,7 @@ func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
 	return true
 }
 
-// Booleanリテラルだけを含む式文を評価すると、そのBooleanそのものになる
+// Booleanに関連する式を評価するテスト
 func TestEvalBooleanExpression(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -73,6 +73,15 @@ func TestEvalBooleanExpression(t *testing.T) {
 	}{
 		{"true を 評価すると true", "true", true},
 		{"false を 評価すると false", "false", false},
+
+		{"真偽値を返す整数同士の中置演算", "1 < 2", true},
+		{"真偽値を返す整数同士の中置演算", "1 > 2", false},
+		{"真偽値を返す整数同士の中置演算", "1 < 1", false},
+		{"真偽値を返す整数同士の中置演算", "1 > 1", false},
+		{"真偽値を返す整数同士の中置演算", "1 == 1", true},
+		{"真偽値を返す整数同士の中置演算", "1 != 1", false},
+		{"真偽値を返す整数同士の中置演算", "1 == 2", false},
+		{"真偽値を返す整数同士の中置演算", "1 != 2", true},
 	}
 
 	for _, tt := range tests {
