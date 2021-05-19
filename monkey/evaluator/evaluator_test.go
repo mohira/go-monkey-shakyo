@@ -144,3 +144,44 @@ func TestBangOperator(t *testing.T) {
 		})
 	}
 }
+
+// 条件分岐の文の評価
+func TestIfElseExpressions(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected interface{}
+	}{
+		{"true は truthy", "if (true) { 10 }", 10},
+		{"false は truthy ではない", "if (false) { 10 }", nil},
+
+		{"整数 は truthy ", "if (1) { 10 }", 10},
+		{"if文にマッチするやつ", "if (1 < 2) { 10 }", 10},
+
+		{"条件分岐を評価した結果が何かの値にならなかった場合は NULL を返す", "if (1 > 2) { 10 }", nil},
+
+		{"if-elseでif分岐にマッチ", "if (1 > 2) { 10 } else { 20 }", 20},
+		{"if-elseでelse分岐にマッチ", "if (1 < 2) { 10 } else { 20 }", 10},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+			integer, ok := tt.expected.(int)
+			if ok {
+				testIntegerObject(t, evaluated, int64(integer))
+			} else {
+				testNullObject(t, evaluated)
+			}
+		})
+	}
+}
+
+func testNullObject(t *testing.T, obj object.Object) bool {
+	if obj != NULL {
+		t.Errorf("object is not NULL. got=%T (%+v)", obj, obj)
+		return false
+	}
+
+	return true
+}
