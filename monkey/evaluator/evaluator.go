@@ -25,6 +25,12 @@ func Eval(node ast.Node) object.Object {
 		return &object.Integer{Value: node.Value}
 	case *ast.Boolean:
 		return nativeBoolToBooleanObject(node.Value)
+	case *ast.PrefixExpression:
+		// (!true) → ! , true
+		// (!(!true)) → ! , !true
+		right := Eval(node.Right)
+
+		return evalPrefixExpression(node.Operator, right)
 	}
 	return nil
 }
@@ -44,4 +50,30 @@ func evalStatements(statements []ast.Statement) object.Object {
 		result = Eval(statement)
 	}
 	return result
+}
+
+func evalPrefixExpression(operator string, right object.Object) object.Object {
+	switch operator {
+	case "!":
+		return evalBangOperatorExpression(right)
+	default:
+		// エラーの処理の仕組みを実装していないので、今はNULLにしておく
+		return NULL
+	}
+}
+
+// !5 や !true みたいな式を評価する
+func evalBangOperatorExpression(right object.Object) object.Object {
+	switch right {
+	case TRUE:
+		return FALSE
+	case FALSE:
+		return TRUE
+	case NULL:
+		return TRUE
+	default:
+		// 整数はここの条件に該当する
+		// !Integer は false
+		return FALSE
+	}
 }
