@@ -85,3 +85,28 @@ func testBooleanObject(t *testing.T, obj object.Object, expected bool) bool {
 
 	return true
 }
+
+// 「!」演算子は、オペランドを真偽値に変換して、その否定を返す
+func TestBangOperator(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected bool
+	}{
+		{"", "!true", false},
+		{"", "!false", true},
+		{"!5 は false (5はtruthy)", "!5", false},
+
+		{"2回適用する場合", "!!true", true},
+		{"2回適用する場合", "!!false", false},
+		{"2回適用する場合", "!!5", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+
+			testBooleanObject(t, evaluated, tt.expected)
+		})
+	}
+}
