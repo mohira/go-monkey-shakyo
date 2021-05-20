@@ -62,10 +62,12 @@ func evalProgram(statements []ast.Statement) object.Object {
 	for _, statement := range statements {
 		result = Eval(statement)
 
-		// 直近の評価結果が object.ReturnValue かどうかを確認し、
-		// もしそうならば評価を中断し、アンラップした値を返す。
-		if returnValue, ok := result.(*object.ReturnValue); ok {
-			return returnValue.Value
+		switch result := result.(type) {
+		case *object.ReturnValue:
+			return result.Value
+		case *object.Error:
+			// エラーの時点で評価を中断して、object.Errorを返す
+			return result
 		}
 	}
 	return result
@@ -77,8 +79,13 @@ func evalBlockStatement(block *ast.BlockStatement) object.Object {
 	for _, statement := range block.Statements {
 		result = Eval(statement)
 
-		if result != nil && result.Type() == object.RETURN_VALUE_OBJ {
-			return result
+		if result != nil {
+			rt := result.Type()
+
+			// return もしくは エラーになった場合は、評価を中断して返す
+			if rt == object.RETURN_VALUE_OBJ || rt == object.ERROR_OBJ {
+				return result
+			}
 		}
 	}
 
