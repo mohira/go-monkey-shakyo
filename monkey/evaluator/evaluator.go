@@ -27,14 +27,14 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return val
 		}
 		return &object.ReturnValue{Value: val}
-
 	case *ast.LetStatement:
+		// let <IDENT>           = <EXPRESSION>
+		// let LetStatement.Name = LetStatement.Value
 		val := Eval(node.Value, env)
 		if isError(val) {
 			return val
 		}
-
-		// うーん？ ここで何をするんだ？
+		env.Set(node.Name.String(), val)
 
 	case *ast.IfExpression:
 		return evalIfExpression(node, env)
