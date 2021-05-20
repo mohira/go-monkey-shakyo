@@ -304,10 +304,10 @@ func TestLetStatements(t *testing.T) {
 		input    string
 		expected int64
 	}{
-		{"単一のlet文: 整数リテラルをそのまま代入", "let a = 5;", 5},
-		{"単一のlet文: 値を生成する式を評価してからの代入", "let a = 5 * 5;", 25},
+		{"単一のlet文: 整数リテラルをそのまま代入", "let a = 5; a;", 5},
+		{"単一のlet文: 値を生成する式を評価してからの代入", "let a = 5 * 5; a;", 25},
 		{"複数のlet文: 束縛された識別子の評価", "let a = 5; let b = a; b;", 5},
-		{"複数のlet文: 束縛された識別子を含む式の評価", "let a = 5; let b = a; let c = a + b + 5; c;", 5},
+		{"複数のlet文: 束縛された識別子を含む式の評価", "let a = 5; let b = a; let c = a + b + 5; c;", 15},
 	}
 
 	for _, tt := range tests {
