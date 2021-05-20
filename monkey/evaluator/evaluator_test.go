@@ -46,7 +46,11 @@ func testEval(input string) object.Object {
 	p := parser.New(l)
 	program := p.ParseProgram()
 
-	return Eval(program)
+	// 複数のテストケースを横断するような状態は持ち込むべきじゃないので、
+	// testEval()のたびに「環境」を初期化
+	env := object.NewEnvironment()
+
+	return Eval(program, env)
 }
 
 func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
