@@ -219,3 +219,71 @@ if (10 > 1) {
 		})
 	}
 }
+
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		name            string
+		input           string
+		expectedMessage string
+	}{
+		{
+			"未定義の演算: 異なる型の演算はエラー: 整数 + 真偽値 はエラーである",
+			"5 + true;",
+			"type mismatch: INTEGER + BOOLEAN",
+		},
+		{
+			"複数の文において、エラーとなる演算が評価されたときに中断される",
+			"5 + true; 5;",
+			"type mismatch: INTEGER + BOOLEAN",
+		},
+		{
+			"未定義の演算: -boolean はエラーである",
+			"-true",
+			"unknown operator: -BOOLEAN",
+		},
+		{
+			"未定義の演算: boolean + boolean はエラーである",
+			"true + false;",
+			"unknown operator: BOOLEAN + BOOLEAN",
+		},
+		{
+			"複数の文において、エラーとなる演算が評価されたときに中断される",
+			"5; true + false; 5;",
+			"unknown operator: BOOLEAN + BOOLEAN",
+		},
+		{
+			"未定義の演算: boolean + boolean はエラーである",
+			"if (10 > 1) { true + false; }",
+			"unknown operator: BOOLEAN + BOOLEAN",
+		},
+		{
+			"未定義の演算: boolean + boolean はエラーである",
+			`
+if (10 > 1) {
+	if (10 > 1) {
+		return true + false;
+	}
+	return 1;
+}
+`,
+			"unknown operator: BOOLEAN + BOOLEAN",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+
+			errObj, ok := evaluated.(*object.Error)
+			if !ok {
+				t.Errorf("no error object returned. got=%T(%+v)", evaluated, evaluated)
+				return
+			}
+
+			if errObj.Message != tt.expectedMessage {
+				t.Errorf("wrong error message. expected=%q, got=%q", tt.expectedMessage, errObj.Message)
+			}
+
+		})
+	}
+}
