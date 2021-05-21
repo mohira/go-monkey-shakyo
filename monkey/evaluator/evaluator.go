@@ -88,6 +88,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return args[0]
 		}
 
+		// function が Environment を持っているのがポイント！
+		return applyFunction(function, args)
 	}
 
 	return nil
@@ -281,4 +283,40 @@ func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Ob
 	}
 
 	return result
+}
+
+func applyFunction(fn object.Object, args []object.Object) object.Object {
+	function, ok := fn.(*object.Function)
+	if !ok {
+		return newError("not a function: %s", fn.Type())
+	}
+
+	extendedEnv := extendFunctionEnv(function, args)
+	evaluated := Eval(function.Body, extendedEnv)
+
+	return unwrapReturnValue(evaluated)
+}
+
+// 与えられた「関数の環境」を拡張した「環境」を返す
+func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Environment {
+	// もともとの関数の環境を外側にもつ、新たな環境をつくる
+	// 別の言い方をすると、
+	// もともとの関数が保持する環境に包まれた新しい環境をつくる
+	env := object.NewEnclosedEnvironment(fn.Env)
+
+	for paramIdx, param := range fn.Parameters {
+		// パラメータ名は、新しく作った環境に束縛する
+		// ⇔ もともとの関数の環境に束縛してはいない！
+		env.Set(param.Value, args[paramIdx])
+	}
+
+	return env
+}
+
+func unwrapReturnValue(obj object.Object) object.Object {
+	if returnValue, ok := obj.(*object.ReturnValue); ok {
+		return returnValue.Value
+	}
+
+	return obj
 }
