@@ -342,3 +342,51 @@ func TestFunctionObject(t *testing.T) {
 		t.Fatalf("body in not %q. got=%q", expectedBody, fn.Body.String())
 	}
 }
+
+// 関数適用のテスト
+func TestFunctionApplication(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected int64
+	}{
+		{
+			"return文のない関数の呼び出し(暗黙の戻り値)",
+			"let identity = fn(x) { x; }; identity(5);",
+			5,
+		},
+		{
+			"return文のある関数の呼び出し",
+			"let identity = fn(x) { return x; }; identity(5);",
+			5,
+		},
+		{
+			"関数本文の式の中でパラメータを利用する",
+			"let double = fn(x) { x * 2; }; double(5)",
+			10,
+		},
+		{
+			"複数のパラメータを持つ関数の呼び出し",
+			"let add = fn(x, y) { x + y; }; add(5, 5);",
+			10,
+		},
+		{
+			"関数に関数を渡せる",
+			"let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));",
+			20,
+		},
+		{
+			"関数リテラルで即呼び出し",
+			"fn(x) { x; }(5);",
+			5,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+
+			testIntegerObject(t, evaluated, tt.expected)
+		})
+	}
+}
