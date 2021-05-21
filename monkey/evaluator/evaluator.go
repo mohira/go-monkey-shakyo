@@ -71,6 +71,23 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		params := node.Parameters
 		body := node.Body
 		return &object.Function{Parameters: params, Body: body, Env: env}
+	case *ast.CallExpression:
+		function := Eval(node.Function, env)
+		if isError(function) {
+			return function
+		}
+
+		// 引数を評価しきってから、関数に渡す
+		// add(2+2, 5+5) のときは、
+		// add(4,   10) ってしたいってこと
+		args := evalExpressions(node.Arguments, env)
+
+		// 式のリスト(ex: [2+2, 5+5])を評価している最中にエラーに遭遇したら
+		// 評価プロセスを中止する
+		if len(args) == 1 && isError(args[0]) {
+			return args[0]
+		}
+
 	}
 
 	return nil
@@ -248,4 +265,20 @@ func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object
 	}
 
 	return val
+}
+
+// ast.Expressionのリストを、現在の環境やコンテキストで、「左から右に向かって」次々に評価する
+func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Object {
+	var result []object.Object
+
+	for _, exp := range exps {
+		evaluated := Eval(exp, env)
+		if isError(evaluated) {
+			return []object.Object{evaluated}
+		}
+
+		result = append(result, evaluated)
+	}
+
+	return result
 }
