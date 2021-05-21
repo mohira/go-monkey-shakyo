@@ -390,3 +390,18 @@ func TestFunctionApplication(t *testing.T) {
 		})
 	}
 }
+
+// 「なぜ、現在の環境ではなく、関数の環境を拡張するか？」の答えとしてのクロージャーのテスト
+func TestClosures(t *testing.T) {
+	input := `
+let newAdder = fn(x) {
+	fn(y) { x + y };
+};
+
+let addTwo = newAdder(2);
+addTwo(2);
+`
+
+	evaluated := testEval(input)
+	testIntegerObject(t, evaluated, 4)
+}
