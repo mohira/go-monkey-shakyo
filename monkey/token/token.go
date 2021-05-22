@@ -34,10 +34,12 @@ const (
 	SEMICOLON = ";"
 
 	// かっこ
-	LPAREN = "("
-	RPAREN = ")"
-	LBRACE = "{"
-	RBRACE = "}"
+	LPAREN   = "("
+	RPAREN   = ")"
+	LBRACE   = "{"
+	RBRACE   = "}"
+	LBRACEKT = "["
+	RBRACEKT = "]"
 
 	// キーワード: 識別子のようにみえて識別子ではなく、実際の言語の一部である単語
 	FUNCTION = "FUNCTION"

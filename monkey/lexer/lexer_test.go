@@ -27,6 +27,7 @@ if (5 < 10) {
 10 != 9;
 "foobar"
 "foo bar"
+[1, 2];
 `
 
 	tests := []struct {
@@ -136,9 +137,18 @@ if (5 < 10) {
 		{token.SEMICOLON, ";"},
 
 		// 「"」も含めて1つのトークンとして扱う
-		// "foobar"; と "foo bar";
+		// "foobar";
 		{token.STRING, "foobar"},
+		// "foo bar";
 		{token.STRING, "foo bar"},
+
+		// [1, 2];
+		{token.LBRACEKT, "["},
+		{token.INT, "1"},
+		{token.COMMA, ","},
+		{token.INT, "2"},
+		{token.RBRACEKT, "]"},
+		{token.SEMICOLON, ";"},
 
 		{token.EOF, ""},
 	}
