@@ -359,3 +359,30 @@ func (al *ArrayLiteral) String() string {
 	return out.String()
 
 }
+
+// 添字演算式 <expression>[<expression>]
+type IndexExpression struct {
+	// 添字演算式の具体例を考えるとASTが見えてくる
+	// let myArray = [1, 2, 3, 4]
+	// myArray[2];                // <識別子>[<整数リテラル>]
+	// myArray[2 + 1];            // <識別子>[<中置演算式>]
+	// [1, 2, 3, 4][2]            // <配列リテラル>[<整数リテラル>]
+	// returnsArray()[1];         // <関数呼び出し式>[<整数リテラル>]
+	Token token.Token
+	Left  Expression //
+	Index Expression
+}
+
+func (ie *IndexExpression) expressionNode()      {}
+func (ie *IndexExpression) TokenLiteral() string { return ie.TokenLiteral() }
+func (ie *IndexExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(ie.Left.String())
+	out.WriteString("[")
+	out.WriteString(ie.Index.String())
+	out.WriteString("])")
+
+	return out.String()
+}
