@@ -102,6 +102,9 @@ func New(l *lexer.Lexer) *Parser {
 	// p.180 文字列リテラルの解析
 	p.registerPrefix(token.STRING, p.parseStringLiteral)
 
+	// p.194 配列リテラル
+	p.registerPrefix(token.LBRACEKT, p.parseArrayLiteral)
+
 	// 中置演算子の解析用関数の登録
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -634,4 +637,57 @@ func (p *Parser) parseCallArguments() []ast.Expression {
 func (p *Parser) parseStringLiteral() ast.Expression {
 	return &ast.StringLiteral{Token: p.curToken, Value: p.curToken.Literal}
 
+}
+
+func (p *Parser) parseArrayLiteral() ast.Expression {
+	array := &ast.ArrayLiteral{Token: p.curToken}
+
+	array.Elements = p.parseExpressionList(token.RBRACEKT)
+
+	return array
+}
+
+func (p *Parser) parseExpressionList(end token.TokenType) []ast.Expression {
+	var list []ast.Expression
+
+	// ex: [ 1 , 2 + 2 , 3 * 3 ]
+	//     | |
+	//	 cur peek
+	if p.peekTokenIs(end) {
+		p.nextToken()
+		return list
+	}
+
+	// ex: [ 1 , 2 + 2 , 3 * 3 ]
+	//     | |
+	//	 cur peek
+	p.nextToken()
+
+	// ex: [ 1 , 2 + 2 , 3 * 3 ]
+	//       | |
+	//	   cur peek
+	list = append(list, p.parseExpression(LOWEST))
+
+	for p.peekTokenIs(token.COMMA) {
+		// ex: [ 1 , 2 + 2 , 3 * 3 ]
+		//       | |
+		//	   cur peek
+		p.nextToken()
+
+		// ex: [ 1 , 2 + 2 , 3 * 3 ]
+		//         | |
+		//	     cur peek
+		p.nextToken()
+
+		// ex: [ 1 , 2 + 2 , 3 * 3 ]
+		//           | |
+		//	       cur peek
+		list = append(list, p.parseExpression(LOWEST))
+	}
+
+	if !p.expectPeek(end) {
+		return nil
+	}
+
+	return list
 }
