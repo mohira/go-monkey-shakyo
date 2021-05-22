@@ -587,51 +587,9 @@ func (p *Parser) parseFunctionParameters() []*ast.Identifier {
 func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
 	exp := &ast.CallExpression{Token: p.curToken, Function: function}
 
-	exp.Arguments = p.parseCallArguments()
+	exp.Arguments = p.parseExpressionList(token.RPAREN)
 
 	return exp
-}
-
-func (p *Parser) parseCallArguments() []ast.Expression {
-	var args []ast.Expression
-
-	// ex: add ( 1 , 2 * 3 , 4 + 5 );
-	//         | |
-	//       cur peek
-	if p.peekTokenIs(token.RPAREN) {
-		// 引数なしのケース
-		// ex: call ( );
-		//          | |
-		//        cur peek
-		p.nextToken()
-		return args
-	}
-
-	// ex: add ( 1 , 2 * 3 , 4 + 5 );
-	//         | |
-	//       cur peek
-	p.nextToken()
-	args = append(args, p.parseExpression(LOWEST))
-
-	for p.peekTokenIs(token.COMMA) {
-		// ex: add ( 1 , 2 * 3 , 4 + 5 );
-		//           | |
-		//         cur peek
-		p.nextToken()
-
-		// ex: add ( 1 , 2 * 3 , 4 + 5 );
-		//             | |
-		//           cur peek
-		p.nextToken()
-
-		args = append(args, p.parseExpression(LOWEST))
-	}
-
-	if !p.expectPeek(token.RPAREN) {
-		return nil
-	}
-
-	return args
 }
 
 func (p *Parser) parseStringLiteral() ast.Expression {
@@ -654,6 +612,7 @@ func (p *Parser) parseExpressionList(end token.TokenType) []ast.Expression {
 	//     | |
 	//	 cur peek
 	if p.peekTokenIs(end) {
+		// 空の配列リテラルや、引数なしの関数の場合はここに該当する
 		p.nextToken()
 		return list
 	}
