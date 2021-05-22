@@ -828,3 +828,26 @@ func TestParsingArrayLiterals(t *testing.T) {
 	testInfixExpression(t, array.Elements[1], 2, "+", 2)
 	testInfixExpression(t, array.Elements[2], 3, "*", 3)
 }
+
+// このテストが検証しているのは、構文解析器が添字式を含む単一の式文に対して正しいASTを出力することだけ。添字式の優先順位については何も調べていない
+func TestParsingIndexExpressions(t *testing.T) {
+	input := "myArray[1 + 1]"
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	indexExp, ok := stmt.Expression.(*ast.IndexExpression)
+	if !ok {
+		t.Fatalf("exp not *ast.IndexExpression. got=%T", stmt.Expression)
+	}
+
+	if !testIdentifier(t, indexExp.Left, "myArray") {
+		return
+	}
+
+	if !testInfixExpression(t, indexExp.Index, 1, "+", 1) {
+		return
+	}
+}
