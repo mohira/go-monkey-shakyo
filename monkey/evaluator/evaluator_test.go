@@ -440,3 +440,59 @@ func TestStringConcatenation(t *testing.T) {
 		t.Errorf("String has wrong value. got=%q", str.Value)
 	}
 }
+
+func TestBuiltinFunctions(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected interface{}
+	}{
+		{
+			"len(): 空文字は長さ0",
+			`len("")`,
+			0,
+		},
+		{
+			"len(): 文字数を数える",
+			`len("four")`,
+			4,
+		},
+		{
+			"len(): 空白も1文字と数える",
+			`len("hello world")`,
+			11,
+		},
+		{
+			"len(): エラー: 整数を引数にはとれない",
+			`len(1)`,
+			"argument to `len` not supported, got INTEGER",
+		},
+		{
+			"len(): エラー: 引数は1つでなければいけない",
+			`len("one", "two")`,
+			"wrong number of arguments. got=2, want=1",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+
+			switch expected := tt.expected.(type) {
+			case int:
+				testIntegerObject(t, evaluated, int64(expected))
+
+			case string:
+				errObj, ok := evaluated.(*object.Error)
+				if !ok {
+					t.Errorf("object is not Error. got=%T(%+v)", evaluated, evaluated)
+					return
+				}
+
+				if errObj.Message != expected {
+					t.Errorf("wrong error message. expected=%q, got=%q", expected, errObj.Message)
+				}
+			}
+		})
+	}
+}
