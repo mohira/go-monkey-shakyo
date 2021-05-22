@@ -99,6 +99,9 @@ func New(l *lexer.Lexer) *Parser {
 	// p.101 関数リテラルの解析
 	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
 
+	// p.180 文字列リテラルの解析
+	p.registerPrefix(token.STRING, p.parseStringLiteral)
+
 	// 中置演算子の解析用関数の登録
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -626,4 +629,9 @@ func (p *Parser) parseCallArguments() []ast.Expression {
 	}
 
 	return args
+}
+
+func (p *Parser) parseStringLiteral() ast.Expression {
+	return &ast.StringLiteral{Token: p.curToken, Value: p.curToken.Literal}
+
 }
