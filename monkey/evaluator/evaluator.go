@@ -333,7 +333,7 @@ func unwrapReturnValue(obj object.Object) object.Object {
 // 文字列同士の中置演算式の評価
 func evalStringInfixExpression(operator string, left, right object.Object) object.Object {
 	if operator != "+" {
-		return newError("unknown  operator: %s %s %s", left.Type(), operator, right.Type())
+		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
 
 	leftVal := left.(*object.String).Value
