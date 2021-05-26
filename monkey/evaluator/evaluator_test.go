@@ -497,6 +497,21 @@ func TestBuiltinFunctions(t *testing.T) {
 			"first(1)",
 			"argument to `first` must be ARRAY, got INTEGER",
 		},
+		{
+			"last(): 配列の最後の要素を取得できる",
+			"last([1, 2, 3])",
+			3,
+		},
+		{
+			"last(): 空の配列の最後の要素はNULL",
+			"last([])",
+			nil,
+		},
+		{
+			"last(): エラー",
+			"last(1)",
+			"argument to `last` must be ARRAY, got INTEGER",
+		},
 	}
 
 	for _, tt := range tests {
