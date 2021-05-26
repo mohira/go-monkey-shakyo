@@ -19,6 +19,7 @@ const (
 	PRODUCT     // *
 	PREFIX      // -X または !X
 	CALL        // myFunction(X)
+	INDEX       // array[index]
 )
 
 // 演算子の優先順位テーブル
@@ -35,8 +36,10 @@ var precedences = map[token.TokenType]int{
 	token.SLASH:    PRODUCT,
 	token.ASTERISK: PRODUCT,
 
-	// 呼び出し式は最も優先順位が高い
 	token.LPAREN: CALL,
+
+	// 添字演算子の優先順位が最強
+	token.LBRACEKT: INDEX,
 }
 
 // peekTokenが必要な理由
