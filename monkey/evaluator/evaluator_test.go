@@ -484,32 +484,32 @@ func TestBuiltinFunctions(t *testing.T) {
 		},
 		{
 			"first(): 配列の最初の要素を取得できる",
-			"first([1, 2, 3])",
+			`first([1, 2, 3])`,
 			1,
 		},
 		{
 			"first(): 空の配列の最初の要素はNULL",
-			"first([])",
+			`first([])`,
 			nil,
 		},
 		{
 			"first(): エラー",
-			"first(1)",
+			`first(1)`,
 			"argument to `first` must be ARRAY, got INTEGER",
 		},
 		{
 			"last(): 配列の最後の要素を取得できる",
-			"last([1, 2, 3])",
+			`last([1, 2, 3])`,
 			3,
 		},
 		{
 			"last(): 空の配列の最後の要素はNULL",
-			"last([])",
+			`last([])`,
 			nil,
 		},
 		{
 			"last(): エラー",
-			"last(1)",
+			`last(1)`,
 			"argument to `last` must be ARRAY, got INTEGER",
 		},
 	}
