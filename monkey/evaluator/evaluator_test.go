@@ -512,6 +512,16 @@ func TestBuiltinFunctions(t *testing.T) {
 			`last(1)`,
 			"argument to `last` must be ARRAY, got INTEGER",
 		},
+		{
+			"rest(): cdrと同じ動き。与えられた配列の最初の1つを除いて残りを全て含む新しい配列を返す。",
+			`rest([1, 2, 3])`,
+			[]int{2, 3},
+		},
+		{
+			"rest(): 空の配列のrestはNULL",
+			`rest([])`,
+			nil,
+		},
 	}
 
 	for _, tt := range tests {
@@ -532,6 +542,21 @@ func TestBuiltinFunctions(t *testing.T) {
 				if errObj.Message != expected {
 					t.Errorf("wrong error message. expected=%q, got=%q", expected, errObj.Message)
 				}
+			case []int:
+				array, ok := evaluated.(*object.Array)
+				if !ok {
+					t.Errorf("obj not Array. got=%T (%+v)", evaluated, evaluated)
+				}
+
+				if len(array.Elements) != len(expected) {
+					t.Errorf("wrong num of elements. want=%d, got=%d", len(expected), len(array.Elements))
+					return
+				}
+
+				for i, expectedElem := range expected {
+					testIntegerObject(t, array.Elements[i], int64(expectedElem))
+				}
+
 			}
 		})
 	}
