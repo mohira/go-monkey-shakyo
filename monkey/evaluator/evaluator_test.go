@@ -472,6 +472,16 @@ func TestBuiltinFunctions(t *testing.T) {
 			`len("one", "two")`,
 			"wrong number of arguments. got=2, want=1",
 		},
+		{
+			"配列の要素数を取得できる",
+			`len([1, 2, 3])`,
+			3,
+		},
+		{
+			"空の配列の長さは0である",
+			`len([])`,
+			0,
+		},
 	}
 
 	for _, tt := range tests {
