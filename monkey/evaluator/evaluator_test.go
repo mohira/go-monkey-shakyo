@@ -473,14 +473,29 @@ func TestBuiltinFunctions(t *testing.T) {
 			"wrong number of arguments. got=2, want=1",
 		},
 		{
-			"配列の要素数を取得できる",
+			"len(): 配列の要素数を取得できる",
 			`len([1, 2, 3])`,
 			3,
 		},
 		{
-			"空の配列の長さは0である",
+			"len(): 空の配列の長さは0である",
 			`len([])`,
 			0,
+		},
+		{
+			"first(): 配列の最初の要素を取得できる",
+			"first([1, 2, 3])",
+			1,
+		},
+		{
+			"first(): 空の配列の最初の要素はNULL",
+			"first([])",
+			nil,
+		},
+		{
+			"first(): エラー",
+			"first(1)",
+			"argument to `first` must be ARRAY, got INTEGER",
 		},
 	}
 
