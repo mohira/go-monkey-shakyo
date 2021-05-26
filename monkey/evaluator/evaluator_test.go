@@ -514,5 +514,75 @@ func TestArray(t *testing.T) {
 	testIntegerObject(t, result.Elements[0], 1)
 	testIntegerObject(t, result.Elements[1], 4)
 	testIntegerObject(t, result.Elements[2], 6)
+}
 
+func TestArrayIndexExpressions(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected interface{}
+	}{
+		{
+			"添字によるアクセス",
+			"[1, 2, 3][0]",
+			1,
+		},
+		{
+			"添字によるアクセス",
+			"[1, 2, 3][1]",
+			2,
+		},
+		{
+			"添字によるアクセス",
+			"[1, 2, 3][2]",
+			3,
+		},
+		{
+			"添字に変数を使える",
+			"let i = 0; [1][i];",
+			1,
+		},
+		{
+			"添字に式を使える",
+			"[1, 2, 3][1 + 1];",
+			3,
+		},
+		{
+			"配列が変数でもOK",
+			"let myArray = [1, 2, 3]; myArray[2];",
+			3,
+		},
+		{
+			"配列が変数でもOK",
+			"let myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2];",
+			6,
+		},
+		{
+			"添字演算式を変数の値として使える",
+			"let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]",
+			2,
+		},
+		{
+			"範囲外の添字アクセスはNULL",
+			"[1, 2, 3][3]",
+			nil,
+		},
+		{
+			"マイナスの添字アクセスはNULL",
+			"[1, 2, 3][-1]",
+			nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+			integer, ok := tt.expected.(int)
+			if ok {
+				testIntegerObject(t, evaluated, int64(integer))
+			} else {
+				testNullObject(t, evaluated)
+			}
+		})
+	}
 }
