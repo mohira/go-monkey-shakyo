@@ -119,6 +119,10 @@ func New(l *lexer.Lexer) *Parser {
 	// p.107
 	p.registerInfix(token.LPAREN, p.parseCallExpression)
 
+	// p.198 添字演算式のパース
+	// myArray[0]における `[` を 中置演算子として扱い、
+	// `myArray` を左のオペランド,  `0` を右のオペランドとして扱う
+	p.registerInfix(token.LBRACEKT, p.parseIndexExpression)
 	return p
 }
 
@@ -649,4 +653,19 @@ func (p *Parser) parseExpressionList(end token.TokenType) []ast.Expression {
 	}
 
 	return list
+}
+
+// myArray[0]における `[` を 中置演算子として扱い、
+// `myArray` を左のオペランド,  `0` を右のオペランドとして扱う
+func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
+	exp := &ast.IndexExpression{Token: p.curToken, Left: left}
+
+	p.nextToken()
+	exp.Index = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RBRACEKT) {
+		return nil
+	}
+
+	return exp
 }
