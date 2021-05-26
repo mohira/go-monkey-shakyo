@@ -6,7 +6,7 @@ import (
 )
 
 var builtins = map[string]*object.Builtin{
-	"len": &object.Builtin{
+	"len": {
 		Fn: func(args ...object.Object) object.Object {
 			if len(args) != 1 {
 				return &object.Error{Message: fmt.Sprintf("wrong number of arguments. got=%d, want=1", len(args))}
