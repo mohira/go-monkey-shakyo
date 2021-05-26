@@ -12,8 +12,9 @@ var builtins = map[string]*object.Builtin{
 				return &object.Error{Message: fmt.Sprintf("wrong number of arguments. got=%d, want=1", len(args))}
 			}
 
-			// ifで分岐するより、switchで式を定義したほうがスッキリ書けるね
 			switch arg := args[0].(type) {
+			case *object.Array:
+				return &object.Integer{Value: int64(len(arg.Elements))}
 			case *object.String:
 				return &object.Integer{Value: int64(len(arg.Value))}
 			default:
