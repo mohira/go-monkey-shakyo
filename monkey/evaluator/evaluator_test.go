@@ -522,6 +522,16 @@ func TestBuiltinFunctions(t *testing.T) {
 			`rest([])`,
 			nil,
 		},
+		{
+			"push(): 要素を追加した新しい配列を返す",
+			`push([], 1)`,
+			[]int{1},
+		},
+		{
+			"push(): エラー",
+			`push(1, 1)`,
+			"argument to `push` must be ARRAY, got INTEGER",
+		},
 	}
 
 	for _, tt := range tests {
@@ -529,9 +539,10 @@ func TestBuiltinFunctions(t *testing.T) {
 			evaluated := testEval(tt.input)
 
 			switch expected := tt.expected.(type) {
+			case nil:
+				testNullObject(t, evaluated)
 			case int:
 				testIntegerObject(t, evaluated, int64(expected))
-
 			case string:
 				errObj, ok := evaluated.(*object.Error)
 				if !ok {
@@ -546,6 +557,7 @@ func TestBuiltinFunctions(t *testing.T) {
 				array, ok := evaluated.(*object.Array)
 				if !ok {
 					t.Errorf("obj not Array. got=%T (%+v)", evaluated, evaluated)
+					return
 				}
 
 				if len(array.Elements) != len(expected) {
