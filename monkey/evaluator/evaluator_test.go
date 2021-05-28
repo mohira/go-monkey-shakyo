@@ -705,3 +705,60 @@ func TestHashLiterals(t *testing.T) {
 	}
 
 }
+
+// ハッシュリテラルでの添字演算式が正しい値を生成することを確認するテスト
+func TestHashIndexExpressions(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected interface{}
+	}{
+		{
+			"存在するハッシュキーでのアクセス",
+			`{"foo": 5}["foo"]`,
+			5,
+		},
+		{
+			"存在しないハッシュキーでのアクセスはNULL",
+			`{"foo": 5}["bar"]`,
+			nil,
+		},
+		{
+			"ハッシュキーでのアクセスに識別子が使える",
+			`let key = "foo"; {"foo": 5}[key]`,
+			5,
+		},
+		{
+			"空のハッシュリテラルに何かしらのキーでアクセスしてもNULL",
+			`{}["foo"]`,
+			nil,
+		},
+		{
+			"ハッシュキーに整数リテラルも使っても正しく評価できる",
+			`{5: 5}[5]`,
+			5,
+		},
+		{
+			"ハッシュキーに真偽値リテラルも使っても正しく評価できる",
+			`{true: 5}[true]`,
+			5,
+		},
+		{
+			"ハッシュキーに真偽値リテラルも使っても正しく評価できる",
+			`{false: 5}[false]`,
+			5,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+			integer, ok := tt.expected.(int)
+			if ok {
+				testIntegerObject(t, evaluated, int64(integer))
+			} else {
+				testNullObject(t, evaluated)
+			}
+		})
+	}
+}
