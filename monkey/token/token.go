@@ -32,6 +32,7 @@ const (
 	// デリミタ
 	COMMA     = ","
 	SEMICOLON = ";"
+	COLON     = ":"
 
 	// かっこ
 	LPAREN   = "("
