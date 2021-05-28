@@ -23,6 +23,10 @@ const (
 	HASH_OBJ         = "HASH"
 )
 
+type Hashable interface {
+	HashKey() HashKey
+}
+
 type Object interface {
 	Type() ObjectType
 	Inspect() string
